@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>페이지를 찾을 수 없어요 - 마이링크</title>
+  <style>
+    :root { --bg: #eef7f0; --card: #ffffff; --text: #1f2d24; --muted: #5f7266; --accent: #2fb37a; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #121a15; --card: #1b2620; --text: #e6f2ea; --muted: #9db5a6; --accent: #3cc98a; }
+    }
+    body {
+      margin: 0; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+      background: var(--bg); color: var(--text);
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    }
+    main {
+      max-width: 400px; width: 100%;
+      background: var(--card); border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 32px 24px; text-align: center;
+    }
+    .code { font-size: 48px; font-weight: 800; color: var(--accent); margin: 0; }
+    h1 { font-size: 20px; margin: 8px 0; }
+    p { color: var(--muted); margin: 0 0 24px; }
+    a {
+      display: inline-block; min-height: 44px; line-height: 44px; padding: 0 20px;
+      border-radius: 12px; background: var(--accent); color: #fff;
+      text-decoration: none; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="code">404</p>
+    <h1>페이지를 찾을 수 없어요</h1>
+    <p>주소가 바뀌었거나 없는 페이지예요.</p>
+    <a href="/mylink/MyLink/">마이링크로 가기</a>
+  </main>
+</body>
+</html>
