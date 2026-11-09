@@ -13,186 +13,88 @@
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%97%3C/text%3E%3C/svg%3E">
-  <style>
-    :root {
-      --bg: #eef7f0;
-      --card: #ffffff;
-      --text: #1f2d24;
-      --muted: #5f7266;
-      --accent: #2fb37a;
-      --track: #e3f1e8;
-      --border: #d6e9dc;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #121a15;
-        --card: #1b2620;
-        --text: #e6f2ea;
-        --muted: #9db5a6;
-        --accent: #3cc98a;
-        --track: #24332a;
-        --border: #2a3a31;
-      }
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--text);
-      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
-      display: flex;
-      justify-content: center;
-      padding: 48px 16px;
-    }
-    main { width: 100%; max-width: 480px; text-align: center; }
-    .avatar {
-      width: 96px; height: 96px; border-radius: 50%;
-      margin: 0 auto 16px;
-      background: linear-gradient(135deg, var(--accent), #6fd3a6);
-      color: #fff; font-size: 40px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center;
-    }
-    h1 { margin: 0 0 6px; font-size: 24px; }
-    .bio { margin: 0 0 32px; color: var(--muted); font-size: 15px; }
-    ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-    a.link {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 20px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      color: var(--text); text-decoration: none; font-weight: 600;
-      transition: transform .15s, border-color .15s;
-    }
-    a.link:hover { transform: translateY(-2px); border-color: var(--accent); }
-    .count { font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; margin-left: 12px; }
-
-    .stats {
-      margin-top: 40px; padding: 20px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      text-align: left;
-    }
-    .stats h2 { margin: 0 0 4px; font-size: 16px; }
-    .total { margin: 0 0 16px; font-size: 14px; color: var(--muted); }
-    .total strong { font-size: 28px; color: var(--accent); margin-right: 4px; }
-    .stat-row { margin-bottom: 12px; }
-    .stat-row:last-child { margin-bottom: 0; }
-    .stat-head { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
-    .bar { height: 8px; border-radius: 4px; background: var(--track); overflow: hidden; }
-    .bar span { display: block; height: 100%; background: var(--accent); border-radius: 4px; transition: width .3s; }
-    .note { margin: 12px 0 0; font-size: 11px; color: var(--muted); }
-
-    footer { margin-top: 32px; font-size: 12px; color: var(--muted); }
-    footer a { color: var(--muted); }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main>
-    <div class="avatar">우</div>
-    <h1>한우진</h1>
-    <p class="bio">바이브 코딩으로 만든 나의 링크 모음</p>
+  <div class="page">
+    <main class="card profile">
+      <img class="profile-img" src="profile.png" alt="프로필 이미지">
+      <h1 id="display-name"></h1>
+      <p class="username" id="username"></p>
+      <p class="bio" id="bio"></p>
+      <ul class="links" id="links"></ul>
+    </main>
 
-    <ul id="links"></ul>
-
-    <section class="stats" aria-labelledby="stats-title">
+    <section class="card stats" id="stats" aria-labelledby="stats-title">
       <h2 id="stats-title">클릭 통계</h2>
-      <p class="total"><strong id="total">0</strong>클릭</p>
-      <div id="stat-list"></div>
+      <p class="total"><strong data-total>0</strong>클릭</p>
+      <div data-stat-list></div>
       <p class="note">클릭 수는 이 브라우저에 저장됩니다.</p>
     </section>
 
     <footer>
       MyLink · 아이디어를 현실로 - 바이브 코딩 ·
+      <a href="mypage.html">내 링크 관리</a> ·
       <a href="https://github.com/wwjj2424-del/mylink" target="_blank" rel="noopener">GitHub</a>
     </footer>
-  </main>
+  </div>
 
+  <script src="data.js"></script>
+  <script src="ui.js"></script>
   <script>
-    // 링크 목록: 여기만 수정하면 페이지에 반영됩니다.
-    const links = [
-      { id: "github", title: "GitHub 프로필", url: "https://github.com/wwjj2424-del" },
-      { id: "source", title: "마이링크 소스 코드", url: "https://github.com/wwjj2424-del/mylink/tree/main/MyLink" },
-      { id: "course", title: "바이브 코딩 강의 (SELC)", url: "https://selc.or.kr/" }
-    ];
+    const profile = MyLinkData.getProfile();
+    document.getElementById("display-name").textContent = profile.displayName;
+    document.getElementById("username").textContent = profile.username ? `@${profile.username}` : "";
+    document.getElementById("bio").textContent = profile.bio;
 
-    // 클릭 통계: 이 브라우저에서 각 링크를 누른 횟수를 저장합니다.
-    function getClicks() {
-      try { return JSON.parse(localStorage.getItem("mylink-clicks")) || {}; }
-      catch (e) { return {}; }
-    }
-    function saveClicks(clicks) {
-      try { localStorage.setItem("mylink-clicks", JSON.stringify(clicks)); } catch (e) {}
-    }
-
+    const stats = document.getElementById("stats");
     const list = document.getElementById("links");
-    const clicks = getClicks();
-    const countEls = {};
 
-    // 총 클릭수 + 링크별 클릭수(많은 순, 막대로 표시)
-    function renderStats() {
-      const total = links.reduce((sum, link) => sum + (clicks[link.id] || 0), 0);
-      document.getElementById("total").textContent = total;
+    function render() {
+      const links = MyLinkData.getLinks();
+      const clicks = MyLinkData.getClicks();
+      list.replaceChildren();
 
-      const max = Math.max(1, ...links.map(link => clicks[link.id] || 0));
-      const sorted = [...links].sort((a, b) => (clicks[b.id] || 0) - (clicks[a.id] || 0));
-      const statList = document.getElementById("stat-list");
-      statList.replaceChildren();
+      if (links.length === 0) {
+        const empty = document.createElement("li");
+        empty.className = "empty";
+        empty.textContent = "아직 등록된 링크가 없어요.";
+        list.appendChild(empty);
+      }
 
-      sorted.forEach(link => {
-        const n = clicks[link.id] || 0;
-        const row = document.createElement("div");
-        row.className = "stat-row";
+      links.forEach(link => {
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.className = "link";
+        a.href = link.url;
+        a.target = "_blank";
+        a.rel = "noopener";
 
-        const head = document.createElement("div");
-        head.className = "stat-head";
-        const name = document.createElement("span");
-        name.textContent = link.title;
-        const value = document.createElement("span");
-        value.textContent = `${n}회`;
-        head.append(name, value);
+        const icon = document.createElement("span");
+        icon.className = "link-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = MyLinkUI.icon(link.icon);
+        const title = document.createElement("span");
+        title.className = "link-title";
+        title.textContent = link.title;
+        const count = document.createElement("span");
+        count.className = "count";
+        count.textContent = `클릭 ${clicks[link.id] || 0}`;
 
-        const bar = document.createElement("div");
-        bar.className = "bar";
-        const fill = document.createElement("span");
-        fill.style.width = `${(n / max) * 100}%`;
-        bar.appendChild(fill);
+        a.append(icon, title, count);
+        a.addEventListener("click", () => {
+          count.textContent = `클릭 ${MyLinkData.addClick(link.id)}`;
+          MyLinkUI.renderStats(stats, MyLinkData.getLinks(), MyLinkData.getClicks());
+        });
 
-        row.append(head, bar);
-        statList.appendChild(row);
+        li.appendChild(a);
+        list.appendChild(li);
       });
+
+      MyLinkUI.renderStats(stats, links, clicks);
     }
 
-    links.forEach(link => {
-      const li = document.createElement("li");
-      const a = document.createElement("a");
-      a.className = "link";
-      a.href = link.url;
-      a.target = "_blank";
-      a.rel = "noopener";
-
-      const title = document.createElement("span");
-      title.textContent = link.title;
-      const count = document.createElement("span");
-      count.className = "count";
-      count.textContent = `클릭 ${clicks[link.id] || 0}`;
-      countEls[link.id] = count;
-
-      a.append(title, count);
-      a.addEventListener("click", () => {
-        clicks[link.id] = (clicks[link.id] || 0) + 1;
-        saveClicks(clicks);
-        count.textContent = `클릭 ${clicks[link.id]}`;
-        renderStats();
-      });
-
-      li.appendChild(a);
-      list.appendChild(li);
-    });
-
-    renderStats();
+    render();
   </script>
 </body>
 </html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>내 링크 관리 - 마이링크</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%97%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .page-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .page-head h1 { margin: 0; font-size: 20px; }
+    .page-head a { font-size: 14px; color: var(--accent); }
+    .storage-note { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
+
+    form { display: grid; gap: 10px; }
+    label { font-size: 13px; font-weight: 600; }
+    input, select {
+      width: 100%;
+      min-height: 44px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
+      color: var(--text);
+      font: inherit;
+    }
+    .field { display: grid; gap: 4px; }
+    .error { margin: 0; min-height: 18px; font-size: 13px; color: var(--danger); }
+    .saved { margin: 0; font-size: 13px; color: var(--accent); min-height: 18px; }
+
+    ul.manage { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    .item-body { flex: 1; min-width: 0; }
+    .item-title { font-weight: 600; overflow-wrap: anywhere; }
+    .item-url { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+    .badge {
+      display: inline-block; margin-left: 6px; padding: 1px 6px;
+      border-radius: 6px; background: var(--accent); color: #fff;
+      font-size: 10px; font-weight: 700; vertical-align: middle;
+    }
+    .icon-btn {
+      width: 44px; height: 44px; flex-shrink: 0;
+      border: none; border-radius: 12px;
+      background: var(--track); cursor: pointer; font-size: 18px;
+    }
+    .edit-form { display: grid; gap: 8px; flex: 1; }
+    .row-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      display: none; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal { width: 100%; max-width: 360px; text-align: center; }
+    .modal h2 { margin: 0 0 8px; font-size: 18px; }
+    .modal p { margin: 0 0 6px; font-size: 14px; }
+    .modal .warn { color: var(--danger); font-size: 13px; margin-bottom: 20px; }
+    .modal-actions { display: flex; gap: 8px; }
+    .modal-actions .btn { flex: 1; }
+  </style>
+</head>
+<body>
+  <div class="page wide">
+    <header class="card">
+      <div class="page-head">
+        <h1>내 링크 관리</h1>
+        <a href="index.html">내 페이지 보기 →</a>
+      </div>
+      <p class="storage-note">로그인 없이 동작하는 버전이라, 수정한 내용은 이 브라우저에만 저장됩니다.</p>
+    </header>
+
+    <section class="card" aria-labelledby="profile-title">
+      <h2 id="profile-title">프로필</h2>
+      <form id="profile-form" novalidate>
+        <div class="field">
+          <label for="p-name">이름</label>
+          <input id="p-name" maxlength="30">
+        </div>
+        <div class="field">
+          <label for="p-username">사용자 이름 (영문·숫자)</label>
+          <input id="p-username" maxlength="30">
+        </div>
+        <div class="field">
+          <label for="p-bio">소개</label>
+          <input id="p-bio" maxlength="80">
+        </div>
+        <p class="error" id="profile-error" role="alert"></p>
+        <button class="btn btn-primary" type="submit">프로필 저장</button>
+        <p class="saved" id="profile-saved" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="add-title">
+      <h2 id="add-title">링크 추가</h2>
+      <form id="add-form" novalidate>
+        <div class="field">
+          <label for="add-title-input">제목</label>
+          <input id="add-title-input" maxlength="40" placeholder="예: 내 블로그">
+        </div>
+        <div class="field">
+          <label for="add-url-input">주소</label>
+          <input id="add-url-input" inputmode="url" placeholder="https://">
+        </div>
+        <div class="field">
+          <label for="add-icon-input">아이콘</label>
+          <select id="add-icon-input"></select>
+        </div>
+        <p class="error" id="add-error" role="alert"></p>
+        <button class="btn btn-primary" type="submit">추가</button>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="list-title">
+      <h2 id="list-title">내 링크</h2>
+      <ul class="manage" id="manage-list"></ul>
+    </section>
+
+    <section class="card stats" id="stats" aria-labelledby="stats-title">
+      <h2 id="stats-title">클릭 통계</h2>
+      <p class="total"><strong data-total>0</strong>클릭</p>
+      <div data-stat-list></div>
+    </section>
+
+    <footer>MyLink · 아이디어를 현실로 - 바이브 코딩</footer>
+  </div>
+
+  <div class="modal-backdrop" id="delete-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="card modal">
+      <h2 id="modal-title">정말 삭제하시겠습니까?</h2>
+      <p id="modal-text"></p>
+      <p class="warn">삭제한 링크는 되돌릴 수 없어요.</p>
+      <div class="modal-actions">
+        <button class="btn btn-gray" type="button" id="modal-cancel">취소</button>
+        <button class="btn btn-danger" type="button" id="modal-confirm">삭제하기</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="ui.js"></script>
+  <script>
+    const stats = document.getElementById("stats");
+    const manageList = document.getElementById("manage-list");
+    const newIds = new Set();
+    let editingId = null;
+    let deletingId = null;
+
+    // 링크 입력값 검사: 문제가 있으면 안내 문구를, 없으면 빈 문자열을 돌려줍니다.
+    function validateLink(title, url) {
+      if (!title) return "제목을 입력해주세요";
+      if (!url) return "주소를 입력해주세요";
+      if (!MyLinkData.isValidUrl(url)) return "올바른 주소를 입력해주세요";
+      return "";
+    }
+
+    function iconOptions(select, selected) {
+      select.replaceChildren();
+      Object.keys(MyLinkUI.ICONS).forEach(key => {
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = `${MyLinkUI.ICONS[key]} ${MyLinkUI.ICON_LABELS[key]}`;
+        option.selected = key === selected;
+        select.appendChild(option);
+      });
+    }
+
+    // 프로필
+    const profile = MyLinkData.getProfile();
+    const pName = document.getElementById("p-name");
+    const pUsername = document.getElementById("p-username");
+    const pBio = document.getElementById("p-bio");
+    pName.value = profile.displayName;
+    pUsername.value = profile.username;
+    pBio.value = profile.bio;
+
+    document.getElementById("profile-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const error = document.getElementById("profile-error");
+      const saved = document.getElementById("profile-saved");
+      saved.textContent = "";
+      const displayName = pName.value.trim();
+      const username = pUsername.value.trim();
+      if (!displayName) { error.textContent = "이름을 입력해주세요"; return; }
+      if (!/^[a-zA-Z0-9_-]{2,30}$/.test(username)) {
+        error.textContent = "사용자 이름은 영문, 숫자, -, _ 로 2자 이상 입력해주세요";
+        return;
+      }
+      error.textContent = "";
+      MyLinkData.saveProfile({ displayName, username, bio: pBio.value.trim() });
+      saved.textContent = "저장했어요.";
+    });
+
+    // 링크 추가: 실패하면 입력값을 그대로 두고, 성공하면 입력 칸을 비웁니다.
+    const addTitle = document.getElementById("add-title-input");
+    const addUrl = document.getElementById("add-url-input");
+    const addIcon = document.getElementById("add-icon-input");
+    iconOptions(addIcon, "link");
+
+    document.getElementById("add-form").addEventListener("submit", event => {
+      event.preventDefault();
+      const title = addTitle.value.trim();
+      const url = addUrl.value.trim();
+      const message = validateLink(title, url);
+      document.getElementById("add-error").textContent = message;
+      if (message) return;
+
+      const link = MyLinkData.addLink({ title, url, icon: addIcon.value });
+      newIds.add(link.id);
+      addTitle.value = "";
+      addUrl.value = "";
+      iconOptions(addIcon, "link");
+      addTitle.focus();
+      render();
+    });
+
+    // 목록: 보기 모드 / 인라인 수정 모드
+    function viewRow(link) {
+      const li = document.createElement("li");
+      li.className = "item";
+
+      const icon = document.createElement("span");
+      icon.className = "link-icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.textContent = MyLinkUI.icon(link.icon);
+
+      const body = document.createElement("div");
+      body.className = "item-body";
+      const title = document.createElement("div");
+      title.className = "item-title";
+      title.textContent = link.title;
+      if (newIds.has(link.id)) {
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = "NEW";
+        title.appendChild(badge);
+      }
+      const url = document.createElement("div");
+      url.className = "item-url";
+      url.textContent = link.url;
+      body.append(title, url);
+
+      const edit = document.createElement("button");
+      edit.className = "icon-btn";
+      edit.type = "button";
+      edit.textContent = "✏️";
+      edit.setAttribute("aria-label", `${link.title} 수정`);
+      edit.addEventListener("click", () => { editingId = link.id; render(); });
+
+      const remove = document.createElement("button");
+      remove.className = "icon-btn";
+      remove.type = "button";
+      remove.textContent = "🗑️";
+      remove.setAttribute("aria-label", `${link.title} 삭제`);
+      remove.addEventListener("click", () => openDeleteModal(link));
+
+      li.append(icon, body, edit, remove);
+      return li;
+    }
+
+    function editRow(link) {
+      const li = document.createElement("li");
+      li.className = "item";
+      const form = document.createElement("form");
+      form.className = "edit-form";
+      form.noValidate = true;
+
+      const title = document.createElement("input");
+      title.value = link.title;
+      title.maxLength = 40;
+      title.setAttribute("aria-label", "제목");
+      const url = document.createElement("input");
+      url.value = link.url;
+      url.inputMode = "url";
+      url.setAttribute("aria-label", "주소");
+      const icon = document.createElement("select");
+      icon.setAttribute("aria-label", "아이콘");
+      iconOptions(icon, link.icon || "link");
+      const error = document.createElement("p");
+      error.className = "error";
+      error.setAttribute("role", "alert");
+
+      const actions = document.createElement("div");
+      actions.className = "row-actions";
+      const cancel = document.createElement("button");
+      cancel.type = "button";
+      cancel.className = "btn btn-gray";
+      cancel.textContent = "취소";
+      cancel.addEventListener("click", () => { editingId = null; render(); });
+      const save = document.createElement("button");
+      save.type = "submit";
+      save.className = "btn btn-primary";
+      save.textContent = "저장";
+      actions.append(cancel, save);
+
+      form.addEventListener("submit", event => {
+        event.preventDefault();
+        const message = validateLink(title.value.trim(), url.value.trim());
+        error.textContent = message;
+        if (message) return;
+        MyLinkData.updateLink(link.id, { title: title.value.trim(), url: url.value.trim(), icon: icon.value });
+        editingId = null;
+        render();
+      });
+
+      form.append(title, url, icon, error, actions);
+      li.appendChild(form);
+      setTimeout(() => title.focus());
+      return li;
+    }
+
+    // 삭제 확인 모달
+    const modal = document.getElementById("delete-modal");
+    function openDeleteModal(link) {
+      deletingId = link.id;
+      document.getElementById("modal-text").textContent = `"${link.title}" 링크가 삭제됩니다.`;
+      modal.classList.add("open");
+      document.getElementById("modal-cancel").focus();
+    }
+    function closeDeleteModal() {
+      deletingId = null;
+      modal.classList.remove("open");
+    }
+    document.getElementById("modal-cancel").addEventListener("click", closeDeleteModal);
+    document.getElementById("modal-confirm").addEventListener("click", () => {
+      if (deletingId) MyLinkData.deleteLink(deletingId);
+      closeDeleteModal();
+      render();
+    });
+    modal.addEventListener("click", event => { if (event.target === modal) closeDeleteModal(); });
+    document.addEventListener("keydown", event => { if (event.key === "Escape") closeDeleteModal(); });
+
+    function render() {
+      const links = MyLinkData.getLinks();
+      manageList.replaceChildren();
+      if (links.length === 0) {
+        const empty = document.createElement("li");
+        empty.className = "empty";
+        empty.textContent = "아직 링크가 없어요. 위에서 추가해 보세요.";
+        manageList.appendChild(empty);
+      }
+      links.forEach(link => manageList.appendChild(link.id === editingId ? editRow(link) : viewRow(link)));
+      MyLinkUI.renderStats(stats, links, MyLinkData.getClicks());
+    }
+
+    render();
+  </script>
+</body>
+</html>

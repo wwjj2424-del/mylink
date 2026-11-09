@@ -1,0 +1,109 @@
+/* 마이링크 공통 스타일 (4주차 기준: 카드, 그림자, 둥근 모서리 16px, 원형 프로필 120px) */
+:root {
+  --bg: #eef7f0;
+  --card: #ffffff;
+  --text: #1f2d24;
+  --muted: #5f7266;
+  --accent: #2fb37a;
+  --track: #e3f1e8;
+  --border: #d6e9dc;
+  --danger: #e5484d;
+  --gray: #8a968f;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121a15;
+    --card: #1b2620;
+    --text: #e6f2ea;
+    --muted: #9db5a6;
+    --accent: #3cc98a;
+    --track: #24332a;
+    --border: #2a3a31;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+/* 반응형: 모바일 100%(패딩 16px) / 태블릿 80%(최대 480px) / 데스크탑 400px 고정 */
+.page { width: 100%; padding: 0 16px; display: grid; gap: 16px; align-content: start; }
+@media (min-width: 768px) { .page { width: 80%; max-width: 480px; padding: 0; } }
+@media (min-width: 1024px) { .page { width: 400px; } }
+.page.wide { max-width: 520px; }
+@media (min-width: 1024px) { .page.wide { width: 480px; } }
+
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+
+.profile { text-align: center; }
+.profile-img {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: var(--shadow);
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 16px;
+}
+.profile h1 { margin: 0 0 4px; font-size: 24px; }
+.username { margin: 0 0 8px; font-size: 13px; color: var(--accent); }
+.bio { margin: 0 0 24px; color: var(--muted); font-size: 15px; }
+
+ul.links { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; text-align: left; }
+a.link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  min-height: 44px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--text); text-decoration: none; font-weight: 600;
+  transition: transform .15s, border-color .15s;
+}
+a.link:hover { transform: translateY(-2px); border-color: var(--accent); }
+.link-icon { font-size: 20px; width: 24px; text-align: center; flex-shrink: 0; }
+.link-title { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.count { font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; }
+
+.stats h2, .card h2 { margin: 0 0 12px; font-size: 16px; }
+.total { margin: 0 0 16px; font-size: 14px; color: var(--muted); }
+.total strong { font-size: 28px; color: var(--accent); margin-right: 4px; }
+.stat-row { margin-bottom: 12px; }
+.stat-row:last-child { margin-bottom: 0; }
+.stat-head { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; margin-bottom: 4px; }
+.bar { height: 8px; border-radius: 4px; background: var(--track); overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--accent); border-radius: 4px; transition: width .3s; }
+.note, .empty { margin: 12px 0 0; font-size: 12px; color: var(--muted); }
+
+.btn {
+  min-height: 44px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 12px;
+  font: inherit; font-weight: 600;
+  cursor: pointer;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-gray { background: var(--track); color: var(--text); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+
+footer { text-align: center; font-size: 12px; color: var(--muted); padding-bottom: 16px; }
+footer a { color: var(--muted); }
